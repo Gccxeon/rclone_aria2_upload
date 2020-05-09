@@ -2,51 +2,39 @@ import sys
 import subprocess
 import os
 import shutil
+import common_tools
 
 # Configure area:
 #uploadcmd = "bash /home/up2one"
 uploader = "/usr/bin/rclone"
 uploaded_log = "./uploaded"
+file_root = "/home/dap/Projects/Scripts/rclone_uploader"
 file_des = "pdrive:/tmp/"
-file_root = "/home/dap/Projects/Scripts/rclone_uploader/test"
-
-# other utils
-def file_check(file_path):
-  if os.path.isfile(file_path):
-    return "is_file"
-  elif os.path.isdir(file_path):
-    return "is_dir"
-  else:
-    raise ValueError("Invalid file path! Please check your input.")
-
-def seedings(uploaded_log, stop_flag):
-  if not stop_flag:
-    with open(uploaded_log, "a") as f:
-      f.write(file_path + "\n")
-
-  with open(uploaded_log, "r") as f:
-    remainings = f.readlines()
-
-  subprocess.call(["echo",
-                   "remaining seeding BT task includes: "])
-
-  for fname in remainings:
-    if fname:
-      subprocess.call(["echo", fname])
 
 
 args = list(sys.argv)
 _, pid, filenum, file_path = args
+
+# Preprocessing the loading path
+file_path = os.path.abspath(file_path)
+file_path = os.path.join(file_root, file_path)
+file_root, ch_file_path = common_tools.split_folder(file_root, file_path)
+file_des = file_des + ch_file_path
+while file_des[-1] == "/":
+  file_des = file_des[:-1]
+
+# Check if processed path is still valid
 if not os.path.exists(file_path):
   file_path = os.path.join(file_root, file_path)
 if not os.path.exists(file_path):
   subprocess.call(["echo",
                    "The given path of file ({}) "
                    "doesn't exist".format(file_path)])
+  exit(0)
+
 subprocess.call(["echo", "Preparing to upload " + file_path])
 
 
-filable = file_check(file_path)
 with open(uploaded_log, "r") as f:
   uploaded = f.readlines()
 with open(uploaded_log, "w") as f:
@@ -58,30 +46,17 @@ with open(uploaded_log, "w") as f:
       subprocess.call(["echo",
                        "By default, now {} will be deleted".format(file_path)])
 
-      if filable == "is_file":
-        pass
-        os.remove(file_path)
-      else:
-        shutil.rmtree(file_path)
-        pass
-    else:
+      # There is a potential bug when doing this:
+      # If a parent file_path gets here later on while the sub-files haven't
+      # finish the upload, the whole parent folder will be dedeleted and the
+      # unfinished sub files won't possiblely get uploaded.
+      common_tools.only_direct_delete(file_root, file_path)
+    elif line.strip().strip('\n'):
       f.write(line)
 
 # begin upload subprocess
 
 if not stop_flag:
   # An standard rclone example
-  if filable == "is_file":
-    subprocess.run([uploader,
-                    "--ignore-existing",
-                    "copy",
-                    file_path,
-                    file_des])
-  else:
-    subprocess.run([uploader,
-                    "--ignore-existing",
-                    "copy",
-                    file_path,
-                    file_des + os.path.basename(file_path)])
-
-seedings(uploaded_log, stop_flag)
+  common_tools.upload(uploader, file_path, file_des)
+  common_tools.add_seedings(uploaded_log, file_root, file_path)
