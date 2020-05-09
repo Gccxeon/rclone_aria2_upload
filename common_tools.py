@@ -12,6 +12,24 @@ def file_check(file_path):
   else:
     raise ValueError("Invalid file path! Please check your input.")
 
+# Split two path (one is parent folder and the other one is child file/folder)
+def split_folder(fa, fb):
+  if fa in fb:
+    pa = fa
+    ch = fb
+  elif fb in fa:
+    pa = fb
+    ch = fa
+  else:
+    pass
+
+  ch_part = ch.replace(pa, "")
+  while ch_part[0] == '/':
+    ch_part = ch_part[1:]
+  while pa[-1] == "/":
+    pa = pa[:-1]
+  return pa, ch_part
+
 # Check current seeding jobs from the logfile
 def add_seedings(uploaded_log, file_root, seeding=None):
   _, diff = split_folder(file_root, seeding)
@@ -36,23 +54,6 @@ def add_seedings(uploaded_log, file_root, seeding=None):
     if fname:
       subprocess.run(["echo", fname])
 
-# Split two path (one is parent folder and the other one is child file/folder)
-def split_folder(fa, fb):
-  if fa in fb:
-    pa = fa
-    ch = fb
-  elif fb in fa:
-    pa = fb
-    ch = fa
-  else:
-    pass
-
-  ch_part = ch.replace(pa, "")
-  while ch_part[0] == '/':
-    ch_part = ch_part[1:]
-  while pa[-1] == "/":
-    pa = pa[:-1]
-  return pa, ch_part
 
 def upload(rclone, source, dest, delete=False):
   filetype = file_check(source)

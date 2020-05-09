@@ -59,9 +59,9 @@ if not stop_flag:
   # download
   if common_tools.file_check(file_path) == "is_file":
     if common_tools.num_folders(ch_file_path) == 1:
-      common_tools.upload(uploaded, file_path, file_des, delete=True)
+      common_tools.upload(uploader, file_path, file_des, delete=True)
 
   # An standard rclone example
-  elif:
+  else:
     common_tools.upload(uploader, file_path, file_des)
     common_tools.add_seedings(uploaded_log, file_root, file_path)
