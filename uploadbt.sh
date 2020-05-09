@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python uploadbt.py "$@"
+python3 uploadbt.py "$@"

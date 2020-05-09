@@ -82,7 +82,7 @@ def only_direct_delete(parent, child):
   child = os.path.abspath(child)
   _, diff = split_folder(parent, child)
   if num_folders(diff) == 1:
-    print(f"Warning: deleted {child}.")
+    print("Warning: deleted {}.".format(child))
     if file_check(child) == "is_file":
       os.remove(child)
     else:
