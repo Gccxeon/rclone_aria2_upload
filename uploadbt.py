@@ -5,10 +5,9 @@ import shutil
 import common_tools
 
 # Configure area:
-#uploadcmd = "bash /home/up2one"
 uploader = "/usr/bin/rclone"
 uploaded_log = "./uploaded"
-file_root = "/home/dap/Projects/Scripts/rclone_uploader"
+file_root = "/home/download"
 file_des = "pdrive:/tmp/"
 
 
@@ -53,10 +52,16 @@ with open(uploaded_log, "w") as f:
       common_tools.only_direct_delete(file_root, file_path)
     elif line.strip().strip('\n'):
       f.write(line)
-
-# begin upload subprocess
-
+# Begin upload process
 if not stop_flag:
+  # Usually bt task are contained inside a folder instead of directly under
+  # root folder. If this happens, event can then be seen as a normal http
+  # download
+  if common_tools.file_check(file_path) == "is_file":
+    if common_tools.num_folders(ch_file_path) == 1:
+      common_tools.upload(uploaded, file_path, file_des, delete=True)
+
   # An standard rclone example
-  common_tools.upload(uploader, file_path, file_des)
-  common_tools.add_seedings(uploaded_log, file_root, file_path)
+  elif:
+    common_tools.upload(uploader, file_path, file_des)
+    common_tools.add_seedings(uploaded_log, file_root, file_path)
