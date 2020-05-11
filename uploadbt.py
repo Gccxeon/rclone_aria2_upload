@@ -6,21 +6,20 @@ import common_tools
 
 # Configure area:
 uploader = "/usr/bin/rclone"
-uploaded_log = "./uploaded"
+uploaded_log = "/root/rclone_aria2_upload/uploaded"
+#uploaded_log = "./uploaded"
+#file_root = "/home/dap/Projects/Scripts/rclone_uploader"
 file_root = "/home/download"
 file_des = "pdrive:/tmp/"
 
 
 args = list(sys.argv)
 _, pid, filenum, file_path = args
-
+file_path = str(file_path)
 # Preprocessing the loading path
 file_path = os.path.abspath(file_path)
 file_path = os.path.join(file_root, file_path)
 file_root, ch_file_path = common_tools.split_folder(file_root, file_path)
-file_des = file_des + ch_file_path
-while file_des[-1] == "/":
-  file_des = file_des[:-1]
 
 # Check if processed path is still valid
 if not os.path.exists(file_path):
@@ -30,6 +29,14 @@ if not os.path.exists(file_path):
                    "The given path of file ({}) "
                    "doesn't exist".format(file_path)])
   exit(0)
+torrent_name = common_tools.get_torrent_name(file_root, file_path)
+if not torrent_name:
+  print("fuck")
+print(torrent_name)
+file_path = os.path.join(file_root, torrent_name)
+file_des = os.path.join(file_des, torrent_name)
+while file_des[-1] == "/":
+  file_des = file_des[:-1]
 
 subprocess.call(["echo", "Preparing to upload " + file_path])
 

@@ -14,6 +14,7 @@ def file_check(file_path):
 
 # Split two path (one is parent folder and the other one is child file/folder)
 def split_folder(fa, fb):
+
   if fa in fb:
     pa = fa
     ch = fb
@@ -21,7 +22,9 @@ def split_folder(fa, fb):
     pa = fb
     ch = fa
   else:
-    pass
+    print("warn safiuahigh")
+    pa = fa
+    ch = fb
 
   ch_part = ch.replace(pa, "")
   while ch_part[0] == '/':
@@ -29,6 +32,12 @@ def split_folder(fa, fb):
   while pa[-1] == "/":
     pa = pa[:-1]
   return pa, ch_part
+
+def get_torrent_name(file_root, aria2_return):
+  _, ch_part = split_folder(file_root, aria2_return)
+  tor_name = ch_part.split("/")[0]
+  print(tor_name)
+  return tor_name
 
 # Check current seeding jobs from the logfile
 def add_seedings(uploaded_log, file_root, seeding=None):

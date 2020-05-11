@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python3 uploadbt.py "$@"
+/usr/bin/python3 /root/rclone_aria2_upload/uploadbt.py "$@" >> /root/upload.log
