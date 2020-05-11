@@ -106,3 +106,15 @@ def num_folders(dir_path):
     return len(dir_path.split("/"))
   else:
     return 0
+
+def media_sort(source, accu, tv_dir, movie_dir):
+  sorteer = get_abs_subpath("msort")
+  subprocess.run([sorter,
+                  "-a",
+                  accu,
+                  "-r",
+                  "--tv-dir",
+                  tv_dir,
+                  "--movie-dir",
+                  movie_dir,
+                  source])

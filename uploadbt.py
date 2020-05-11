@@ -11,6 +11,10 @@ uploaded_log = "/root/rclone_aria2_upload/uploaded"
 #file_root = "/home/dap/Projects/Scripts/rclone_uploader"
 file_root = "/home/download"
 file_des = "pdrive:/tmp/"
+tv_dir = "/root/pdrive/Videos/TVs"
+movie_dir = "/root/pdrive/Videos/Pending"
+source = "/root/pdrive/tmp/"
+
 
 
 args = list(sys.argv)
@@ -32,6 +36,7 @@ if not os.path.exists(file_path):
 torrent_name = common_tools.get_torrent_name(file_root, file_path)
 file_path = os.path.join(file_root, torrent_name)
 file_des += torrent_name
+sort_path = source + torrent_name
 while file_des[-1] == "/":
   file_des = file_des[:-1]
 
@@ -68,3 +73,6 @@ if not stop_flag:
   else:
     common_tools.upload(uploader, file_path, file_des)
     common_tools.add_seedings(uploaded_log, file_root, file_path)
+
+  # Perform a media sort
+  common_tools.media_sort(sort_path, 70, tv_dir, movie_dir)
