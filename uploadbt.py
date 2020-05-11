@@ -30,15 +30,12 @@ if not os.path.exists(file_path):
                    "doesn't exist".format(file_path)])
   exit(0)
 torrent_name = common_tools.get_torrent_name(file_root, file_path)
-if not torrent_name:
-  print("fuck")
-print(torrent_name)
 file_path = os.path.join(file_root, torrent_name)
-file_des = os.path.join(file_des, torrent_name)
+file_des += torrent_name
 while file_des[-1] == "/":
   file_des = file_des[:-1]
 
-subprocess.call(["echo", "Preparing to upload " + file_path])
+subprocess.run(["echo", "Preparing to upload " + file_path])
 
 
 with open(uploaded_log, "r") as f:
@@ -65,8 +62,7 @@ if not stop_flag:
   # root folder. If this happens, event can then be seen as a normal http
   # download
   if common_tools.file_check(file_path) == "is_file":
-    if common_tools.num_folders(ch_file_path) == 1:
-      common_tools.upload(uploader, file_path, file_des, delete=True)
+    common_tools.upload(uploader, file_path, file_des, delete=True)
 
   # An standard rclone example
   else:
