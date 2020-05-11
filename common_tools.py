@@ -22,7 +22,6 @@ def split_folder(fa, fb):
     pa = fb
     ch = fa
   else:
-    print("warn safiuahigh")
     pa = fa
     ch = fb
 
