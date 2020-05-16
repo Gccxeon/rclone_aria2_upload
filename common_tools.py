@@ -2,6 +2,7 @@ import sys
 import subprocess
 import os
 import shutil
+from termcolor import colored, cprint
 
 # Check if a path points to a folder or file
 def file_check(file_path):
@@ -22,8 +23,7 @@ def split_folder(fa, fb):
     pa = fb
     ch = fa
   else:
-    pa = fa
-    ch = fb
+    return pa, ""
 
   ch_part = ch.replace(pa, "")
   while ch_part[0] == '/':
@@ -54,13 +54,12 @@ def add_seedings(uploaded_log, file_root, seeding=None):
     for remain in remainings:
       if remain.strip().strip("/n"):
         f.write(remain)
+    f.truncate()
 
-  subprocess.run(["echo",
-                   "remaining seeding BT task includes: "])
+  normal_msg("remaining seeding BT tasks include: ")
 
   for fname in remainings:
-    if fname:
-      subprocess.run(["echo", fname])
+    yellow_msg(fname)
 
 
 def upload(rclone, source, dest, delete=False):
@@ -71,11 +70,15 @@ def upload(rclone, source, dest, delete=False):
     fcmd = "move"
   else:
     fcmd = "copy"
-  subprocess.run([rclone,
-                  "--ignore-existing",
-                  fcmd,
-                  source,
-                  dest])
+
+  subprocess.run([rclone, "--ignore-existing", fcmd, source, dest], check=True)
+
+  normal_msg("Finished uploading {} to {}.".format(source, dest))
+
+  if delete:
+    warn_msg("{} will be deleted directly instead of "
+             "entering seeding ".format(source))
+
 
 def get_abs_subpath(parent):
   parent = os.path.abspath(parent)
@@ -84,18 +87,7 @@ def get_abs_subpath(parent):
     children[i] = os.path.join(parent, child)
   return children
 
-# Only delete the child if the child is drectly under the parent folder
-def only_direct_delete(parent, child):
-  parent = os.path.abspath(parent)
-  child = os.path.abspath(child)
-  _, diff = split_folder(parent, child)
-  if num_folders(diff) == 1:
-    print("Warning: deleted {}.".format(child))
-    if file_check(child) == "is_file":
-      os.remove(child)
-    else:
-      shutil.rmtree(child)
-
+# Get number of folders (The path must be a directory)
 def num_folders(dir_path):
   while dir_path[0] == "/":
     dir_path = dir_path[1:]
@@ -106,8 +98,23 @@ def num_folders(dir_path):
   else:
     return 0
 
-def media_sort(source, accu, tv_dir, movie_dir):
-  sorteer = get_abs_subpath("msort")
+
+# Only delete the child if the child is drectly under the parent folder
+def only_direct_delete(parent, child):
+  parent = os.path.abspath(parent)
+  child = os.path.abspath(child)
+  _, diff = split_folder(parent, child)
+  if num_folders(diff) == 1:
+    warn_msg("Deleting {}.".format(child))
+    if file_check(child) == "is_file":
+      os.remove(child)
+    else:
+      shutil.rmtree(child)
+    warn_msg("{} Deleted!".format(child))
+  else:
+    yellow_msg("{} are not directly under {}, skipped.".format(child, parent))
+
+def media_sort(sorter, source, accu, tv_dir, movie_dir):
   subprocess.run([sorter,
                   "-a",
                   accu,
@@ -116,4 +123,26 @@ def media_sort(source, accu, tv_dir, movie_dir):
                   tv_dir,
                   "--movie-dir",
                   movie_dir,
-                  source])
+                  source], check=True)
+  normal_msg("Finished sorting possible media files.")
+
+
+def normal_msg(msg):
+  cprint(msg, 'green', 'on_grey')
+
+def warn_msg(msg):
+  cprint('Warning: ' + msg, 'magenta', attrs = ['bold'], file=sys.stderr)
+
+def err_msg(msg):
+  cprint('Error: ' + msg, 'red', attrs = ['bold'], file=sys.stderr)
+
+def yellow_msg(msg):
+  cprint(msg, 'yellow')
+
+def print_disk_usage():
+  total, used, free = shutil.disk_usage("/")
+  yellow_msg("Current disk usage are: \n")
+  yellow_msg("Total: %d GiB" % (total // (2**30)))
+  yellow_msg("Used: %d GiB" % (used // (2**30)))
+  yellow_msg("Free: %d GiB" % (free // (2**30)))
+

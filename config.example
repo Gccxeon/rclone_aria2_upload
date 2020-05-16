@@ -1,0 +1,29 @@
+# Please change all the settings to fit your needs.
+
+# Path of rclone executable, your aria2 download folder, log of uploaded file.
+[Path]
+rclone_path = /usr/bin/rclone
+aria2_download_path = /home/aria2/download
+uploaded_log_file = /home/aria2/download/uploaded.log
+
+
+[Remote]
+# name of your rclone remote
+remote_name = pdrive
+# where to put the uploads in your rclone remote
+remote_dest = tmp
+
+
+# This part is optional. It's used to sort the media in your mounted rclone
+# remote
+[Media_Sort]
+# where to mount your rclone remote (local folder)
+remote_mount_loc = /home/download/rclone_mount
+# where to put your sorted media (relative to the root of your rclone remote
+tv_dir = Videos/TVs
+# where to put your sorted videos (also relative)
+mv_dir = Videos/Movies
+# Set the accuracy of the media sort. With higher accuracy, less chance
+# an media file will get sorted, but more likely such a sort is correct.
+accuracy = 90
+
